@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import { Component } from 'react';
 
 class ErrorButton extends Component {
   state = { throwError: false };
