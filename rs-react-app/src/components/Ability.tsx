@@ -1,5 +1,5 @@
 import { Component } from 'react';
-import { fetchAbility } from '../services/api';
+import { fetchAbility } from '../services/ability';
 
 interface AbilityProps {
   abilityIdOrName: string;
