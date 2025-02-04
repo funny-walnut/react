@@ -1,6 +1,7 @@
 import { Component } from 'react';
 import Search from '../components/Search';
 import Ability from '../components/Ability';
+import ErrorButton from '../components/ErrorButton';
 
 class Home extends Component {
   state = {
@@ -19,7 +20,7 @@ class Home extends Component {
         <h1>Ability Search</h1>
         <Search onSearch={this.handleSearch} />
         {searchTerm && <Ability abilityIdOrName={searchTerm} />}
-
+        <ErrorButton />
         <footer>
           <p>
             For more information, check the{' '}

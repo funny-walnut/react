@@ -22,10 +22,21 @@ class ErrorBoundary extends Component<Props, State> {
     console.error('Caught an error:', error, errorInfo);
   }
 
+  handleReset = () => {
+    this.setState({ hasError: false });
+  };
+
   render() {
     if (this.state.hasError) {
-      return <h1>Something went wrong.</h1>;
+      return (
+        <div style={{ textAlign: 'center', padding: '20px', color: 'red' }}>
+          <h2>Something went wrong!</h2>
+          <p>Try refreshing the page or click the button below.</p>
+          <button onClick={this.handleReset}>Reset</button>
+        </div>
+      );
     }
+
     return this.props.children;
   }
 }
