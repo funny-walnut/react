@@ -1,87 +1,70 @@
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 import Search from '../components/Search';
 import ErrorButton from '../components/ErrorButton';
 import Ability from '../components/Ability';
 import { fetchAllAbilities } from '../services/allAbilities';
+import useLocalStorage from '../utils/hooks/useLocalStorage';
 
-interface State {
-  searchTerm: string;
-  abilities: AbilityType[];
-  isLoading: boolean;
-  error: string | null;
-}
+const Home = () => {
+  const [searchTerm, setSearchTerm] = useLocalStorage('searchTerm', '');
+  const [abilities, setAbilities] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-interface AbilityType {
-  name: string;
-}
+  useEffect(() => {
+    const loadAllAbilities = async () => {
+      try {
+        const result = await fetchAllAbilities();
+        setAbilities(result);
+        setIsLoading(false);
+      } catch (err) {
+        setError(err.message);
+        setIsLoading(false);
+      }
+    };
 
-class Home extends Component {
-  state: State = {
-    searchTerm: localStorage.getItem('searchTerm') || '',
-    abilities: [],
-    isLoading: true,
-    error: null,
+    loadAllAbilities();
+  }, []);
+
+  const handleSearch = (searchTerm: string) => {
+    setSearchTerm(searchTerm);
   };
 
-  componentDidMount() {
-    this.loadAllAbilities();
-  }
+  return (
+    <div>
+      <h1>Ability Search</h1>
+      <Search onSearch={handleSearch} />
 
-  loadAllAbilities = () => {
-    this.setState({ isLoading: true, error: null });
+      {searchTerm ? (
+        <Ability abilityIdOrName={searchTerm} />
+      ) : isLoading ? (
+        <p>Loading...</p>
+      ) : error ? (
+        <p style={{ color: 'red' }}>Error: {error}</p>
+      ) : (
+        <ul>
+          {abilities.map((ability: { name: string }) => (
+            <li key={ability.name}>{ability.name}</li>
+          ))}
+        </ul>
+      )}
 
-    fetchAllAbilities()
-      .then((abilities) => {
-        this.setState({ abilities, isLoading: false });
-      })
-      .catch((error) => {
-        this.setState({ error: error.message, isLoading: false });
-      });
-  };
-
-  handleSearch = (searchTerm: string) => {
-    this.setState({ searchTerm });
-  };
-
-  render() {
-    const { searchTerm, abilities, isLoading, error } = this.state;
-
-    return (
-      <div>
-        <h1>Ability Search</h1>
-        <Search onSearch={this.handleSearch} />
-
-        {searchTerm ? (
-          <Ability abilityIdOrName={searchTerm} />
-        ) : isLoading ? (
-          <p>Loading...</p>
-        ) : error ? (
-          <p style={{ color: 'red' }}>Error: {error}</p>
-        ) : (
-          <ul>
-            {abilities.map((ability) => (
-              <li key={ability.name}>{ability.name}</li>
-            ))}
-          </ul>
-        )}
-
-        <ErrorButton />
-        <footer>
-          <p>
-            For more information, check the{' '}
-            <a
-              href="https://pokeapi.co/docs/v2#abilities:~:text=Pok%C3%A9mon-,Abilities,-Characteristics"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              PokeAPI documentation
-            </a>
-            .
-          </p>
-        </footer>
-      </div>
-    );
-  }
-}
+      <ErrorButton />
+      <footer>
+        <p>
+          For more information, check the{' '}
+          <a
+            href="https://pokeapi.co/docs/v2#abilities:~:text=Pok%C3%A9mon-,Abilities,-Characteristics"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            PokeAPI documentation
+          </a>
+          .
+        </p>
+      </footer>
+    </div>
+  );
+};
 
 export default Home;
