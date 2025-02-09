@@ -1,11 +1,27 @@
 import axios from 'axios';
 import { GET_ABILITY } from '../constants/api';
 
-export const fetchAllAbilities = async () => {
-  try {
-    const response = await axios.get(`${GET_ABILITY}?offset=0&limit=20`);
+export interface Ability {
+  name: string;
+  url: string;
+}
 
-    return response.data.results;
+export interface AbilityListResponse {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: Ability[];
+}
+
+export const fetchAllAbilities = async (
+  page: number,
+  limit: number = 10
+): Promise<AbilityListResponse> => {
+  try {
+    const response = await axios.get<AbilityListResponse>(
+      `${GET_ABILITY}/?offset=${(page - 1) * limit}&limit=${limit}`
+    );
+    return response.data;
   } catch {
     throw new Error('Failed to fetch abilities list');
   }
